@@ -1,8 +1,8 @@
 ## CircleCheckBox Screenshot：
-<img src="/art/screenshot.png" alt="screenshot" title="screenshot" width="396" height="704" />
+<img src="/art/screenshot.gif" alt="screenshot" title="screenshot" width="396" height="650" />
 
 ## Attrs
-|attr|format|description|
+|attr|format|
 |---|:---|:---:|
 |animation_duration|integer|
 |tick_width|dimension|
