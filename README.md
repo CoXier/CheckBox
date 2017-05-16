@@ -5,6 +5,7 @@
 
 |attr|format|
 |:--:|:--:|
+|checked|boolean|
 |animation_duration|integer|
 |tick_width|dimension|
 |border_width|dimension|
@@ -15,7 +16,7 @@
 ## Including in your project
 - `CircleCheckBox` is available in the MavenCentral, so getting it as simple as adding it as a dependency
 ```gradle
-compile 'com.uniquestudio:checkbox:1.0.2'
+compile 'com.uniquestudio:checkbox:1.0.4'
 ```
 
 ## Usage
