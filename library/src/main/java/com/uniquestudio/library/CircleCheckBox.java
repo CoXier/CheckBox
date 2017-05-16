@@ -19,19 +19,17 @@ import android.view.animation.LinearInterpolator;
  * Created by CoXier on 2016/7/26.
  */
 public class CircleCheckBox extends MaterialCheckBox {
-
-    private Paint mTickPaint, mTickBackgroundPaint,mBorderUnCheckedPaint, mBorderCheckedPaint,mBackgroundPaint;
-    private Path mCirclePath, mDst;
-    private Path  mLeftPath, mRightPath;
+    private Paint mTickPaint, mTickBackgroundPaint, mCircleBorderPaint, mInnerCircleBackgroundPaint;
+    private Path mArcPath;
+    private Path mLeftPath, mRightPath;
     private PathMeasure mLeftMeasure, mRightMeasure;
-    private PathMeasure mOppositeLeftMeasure,mOppositeRightMeasure;
     private int mTickWidth, mBorderWidth;
-    private int mTickColor, mBorderColor,mBackgroundColor;
+    private int mTickColor, mBorderColor, mBackgroundColor;
     private int mWidth, mHeight, mRadius;
     private int mDuration;
     private Point mCenterPoint;
     private RectF mRectF;
-    private Point mLeftPoint ,mMiddlePoint,mRightPoint,mStopPoint;
+    private Point mLeftPoint, mMiddlePoint, mRightPoint, mStopPoint;
 
     private OnCheckedChangeListener mListener;
 
@@ -65,7 +63,7 @@ public class CircleCheckBox extends MaterialCheckBox {
                     a.getDimensionPixelOffset(R.styleable.CircleCheckBox_border_width, dp2px(8));
             mBorderColor =
                     a.getColor(R.styleable.CircleCheckBox_border_color, Color.parseColor("#4AC65A"));
-            mBackgroundColor = a.getColor(R.styleable.CircleCheckBox_background_color,Color.parseColor("#32bc43"));
+            mBackgroundColor = a.getColor(R.styleable.CircleCheckBox_background_color, Color.parseColor("#32bc43"));
         } finally {
             a.recycle();
         }
@@ -75,9 +73,8 @@ public class CircleCheckBox extends MaterialCheckBox {
     private void init() {
         mTickPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mTickBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mBorderUnCheckedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mBorderCheckedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mCircleBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mInnerCircleBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
         // paint of the tick
         mTickPaint.setColor(mTickColor);
@@ -91,24 +88,37 @@ public class CircleCheckBox extends MaterialCheckBox {
         mTickBackgroundPaint.setStrokeWidth(mTickWidth);
 
         // paint of the border
-        mBorderUnCheckedPaint.setColor(mTickColor);
-        mBorderUnCheckedPaint.setStyle(Paint.Style.STROKE);
-        mBorderUnCheckedPaint.setStrokeWidth(mBorderWidth);
+        mCircleBorderPaint.setColor(mTickColor);
+        mCircleBorderPaint.setStyle(Paint.Style.STROKE);
+        mCircleBorderPaint.setStrokeCap(Paint.Cap.ROUND);
+        mCircleBorderPaint.setStrokeWidth(mBorderWidth);
 
-        mBorderCheckedPaint.setColor(mBorderColor);
-        mBorderCheckedPaint.setStyle(Paint.Style.STROKE);
-        mBorderCheckedPaint.setStrokeWidth(mBorderWidth);
 
         // paint of the background
-        mBackgroundPaint.setColor(mBackgroundColor);
-        mBackgroundPaint.setStyle(Paint.Style.FILL);
+        mInnerCircleBackgroundPaint.setColor(mBackgroundColor);
+        mInnerCircleBackgroundPaint.setStyle(Paint.Style.FILL);
 
         mCenterPoint = new Point();
+        // three point of the tick
+        mLeftPoint = new Point();
+        mMiddlePoint = new Point();
+        mRightPoint = new Point();
+        mStopPoint = new Point();
+
+        // build the path of tick
+        mLeftPath = new Path();
+        mRightPath = new Path();
+
+        mLeftMeasure = new PathMeasure();
+        mRightMeasure = new PathMeasure();
+        mArcPath = new Path();
+        mRectF = new RectF();
+
         this.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 toggle();
-                if (mListener!=null) {
+                if (mListener != null) {
                     mListener.onCheckedChanged(isChecked());
                 }
             }
@@ -132,13 +142,7 @@ public class CircleCheckBox extends MaterialCheckBox {
         mCenterPoint.x = paddingLeft + mRadius + mBorderWidth;
         mCenterPoint.y = paddingTop + mRadius + mBorderWidth;
 
-        mRectF = new RectF(paddingLeft + mBorderWidth, paddingTop + mBorderWidth, mWidth - mBorderWidth, mHeight - mBorderWidth);
-
-        // three point of the tick
-        mLeftPoint = new Point();
-        mMiddlePoint = new Point();
-        mRightPoint = new Point();
-        mStopPoint = new Point();
+        mRectF.set(paddingLeft + mBorderWidth, paddingTop + mBorderWidth, mWidth - mBorderWidth, mHeight - mBorderWidth);
 
         mLeftPoint.x = (int) (paddingLeft + (diameter * 0.2428));
         mLeftPoint.y = (int) (paddingTop + diameter * 0.4712);
@@ -152,48 +156,33 @@ public class CircleCheckBox extends MaterialCheckBox {
         mRightPoint.x = (int) (paddingLeft + (diameter * 0.7642));
         mRightPoint.y = (int) (paddingTop + diameter * 0.3285);
 
-
-        // build the path of tick
-        mLeftPath = new Path();
-        mRightPath = new Path();
-
         mLeftPath.moveTo(mLeftPoint.x, mLeftPoint.y);
         mLeftPath.lineTo(mMiddlePoint.x, mMiddlePoint.y);
-        mLeftMeasure = new PathMeasure(mLeftPath, false);
-        mLeftPath.reset();
-        mLeftPath.moveTo(mMiddlePoint.x,mMiddlePoint.y);
-        mLeftPath.lineTo(mLeftPoint.x,mLeftPoint.y);
-        mOppositeLeftMeasure = new PathMeasure(mLeftPath,false);
+        mLeftMeasure.setPath(mLeftPath, false);;
         mLeftPath.reset();
 
         mRightPath.moveTo(mStopPoint.x, mStopPoint.y);
         mRightPath.lineTo(mRightPoint.x, mRightPoint.y);
-        mRightMeasure = new PathMeasure(mRightPath, false);
-        mRightPath.reset();
-        mRightPath.moveTo(mRightPoint.x,mRightPoint.y);
-        mRightPath.lineTo(mStopPoint.x,mStopPoint.y);
-        mOppositeRightMeasure = new PathMeasure(mRightPath,false);
+        mRightMeasure.setPath(mRightPath, false);
         mRightPath.reset();
 
-        mCirclePath = new Path();
-        mCirclePath.addCircle(mCenterPoint.x, mCenterPoint.y, mRadius, Path.Direction.CCW);
-
-
-        mDst = new Path();
+        mArcPath.addCircle(mCenterPoint.x, mCenterPoint.y, mRadius, Path.Direction.CCW);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         // draw background
-        canvas.drawCircle(mCenterPoint.x,mCenterPoint.y,mRadius,mBackgroundPaint);
+        canvas.drawCircle(mCenterPoint.x, mCenterPoint.y, mRadius, mInnerCircleBackgroundPaint);
         // draw border
-        canvas.drawPath(mCirclePath, mBorderUnCheckedPaint);
-        canvas.drawPath(mDst, mBorderCheckedPaint);
+        mCircleBorderPaint.setColor(mBorderColor);
+        canvas.drawCircle(mCenterPoint.x, mCenterPoint.y, mRadius, mCircleBorderPaint);
+        mCircleBorderPaint.setColor(mTickColor);
+        canvas.drawPath(mArcPath, mCircleBorderPaint);
         // draw tick
-        canvas.drawLine(mLeftPoint.x,mLeftPoint.y,mMiddlePoint.x,mMiddlePoint.y,mTickBackgroundPaint);
+        canvas.drawLine(mLeftPoint.x, mLeftPoint.y, mMiddlePoint.x, mMiddlePoint.y, mTickBackgroundPaint);
         canvas.drawPath(mLeftPath, mTickPaint);
-        canvas.drawLine(mStopPoint.x,mStopPoint.y,mRightPoint.x,mRightPoint.y,mTickBackgroundPaint);
+        canvas.drawLine(mStopPoint.x, mStopPoint.y, mRightPoint.x, mRightPoint.y, mTickBackgroundPaint);
         canvas.drawPath(mRightPath, mTickPaint);
     }
 
@@ -215,9 +204,7 @@ public class CircleCheckBox extends MaterialCheckBox {
 
     private void startUnCheckedAnimation() {
         // tick animation
-        mTickPaint.setColor(mBackgroundColor);
-        mTickBackgroundPaint.setColor(mTickColor);
-        mTickPaint.setStrokeWidth((float) (mTickWidth*1.2));
+        mLeftMeasure.getSegment(0,mLeftMeasure.getLength(),mLeftPath,true);
         ValueAnimator rightAnimator = ValueAnimator.ofFloat(0f, 1f);
         rightAnimator.setDuration((long) (mDuration * 0.16));
         rightAnimator.setInterpolator(new LinearInterpolator());
@@ -226,47 +213,45 @@ public class CircleCheckBox extends MaterialCheckBox {
             public void onAnimationUpdate(ValueAnimator animation) {
                 float value = (float) animation.getAnimatedValue();
                 mRightPath.reset();
-                mRightPath.lineTo(0,0);
-                mOppositeRightMeasure.getSegment(0, value * mOppositeRightMeasure.getLength(), mRightPath, true);
-                invalidate();
+                mRightPath.lineTo(0, 0);
+                mRightMeasure.getSegment(0, (1-value) * mRightMeasure.getLength(), mRightPath, true);
+                postInvalidate();
             }
         });
-
         rightAnimator.start();
 
-        ValueAnimator leftAnimator = ValueAnimator.ofFloat(0f,1f);
-        leftAnimator.setStartDelay((long) (mDuration*0.14));
-        leftAnimator.setDuration((long) (mDuration*0.10));
+        ValueAnimator leftAnimator = ValueAnimator.ofFloat(0f, 1f);
+        leftAnimator.setStartDelay((long) (mDuration * 0.14));
+        leftAnimator.setDuration((long) (mDuration * 0.10));
         leftAnimator.setInterpolator(new LinearInterpolator());
         leftAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float value = (float) animation.getAnimatedValue();
                 mLeftPath.reset();
-                mLeftPath.lineTo(0,0);
-                mOppositeLeftMeasure.getSegment(0, value * mOppositeLeftMeasure.getLength(), mLeftPath, true);
-                invalidate();
+                mLeftPath.lineTo(0, 0);
+                mLeftMeasure.getSegment(0, (1-value) * mLeftMeasure.getLength(), mLeftPath, true);
+                postInvalidate();
             }
         });
         leftAnimator.start();
 
 
         // circle animation
-        mBorderUnCheckedPaint.setColor(mBorderColor);
-        mBorderCheckedPaint.setColor(mTickColor);
+        mCircleBorderPaint.setColor(mBorderColor);
         ValueAnimator circleAnimator = ValueAnimator.ofFloat(0f, 1f);
         circleAnimator.setInterpolator(new LinearInterpolator());
         circleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float value = (float) animation.getAnimatedValue();
-                mDst.reset();
-                mDst.addArc(mRectF, -159,  360 * value);
-                invalidate();
+                mArcPath.reset();
+                mArcPath.addArc(mRectF, -159, 360 * value);
+                postInvalidate();
             }
         });
         circleAnimator.setDuration(mDuration / 3);
-        circleAnimator.setStartDelay((long) (mDuration*0.23));
+        circleAnimator.setStartDelay((long) (mDuration * 0.23));
         circleAnimator.start();
 
 
@@ -274,17 +259,15 @@ public class CircleCheckBox extends MaterialCheckBox {
 
     private void startCheckedAnimation() {
         // circle animation
-        mBorderUnCheckedPaint.setColor(mTickColor);
-        mBorderCheckedPaint.setColor(mBorderColor);
         ValueAnimator circleAnimator = ValueAnimator.ofFloat(0f, 1f);
         circleAnimator.setInterpolator(new DecelerateInterpolator());
         circleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float value = (float) animation.getAnimatedValue();
-                mDst.reset();
-                mDst.addArc(mRectF, -159, -1 * 360 * value);
-                invalidate();
+                mArcPath.reset();
+                mArcPath.addArc(mRectF, -159, 360 * (1 - value));
+                postInvalidate();
             }
         });
         circleAnimator.setDuration(mDuration / 4);
@@ -304,15 +287,15 @@ public class CircleCheckBox extends MaterialCheckBox {
             public void onAnimationUpdate(ValueAnimator animation) {
                 float value = (float) animation.getAnimatedValue();
                 mLeftPath.reset();
-                mLeftPath.lineTo(0,0);
+                mLeftPath.lineTo(0, 0);
                 mLeftMeasure.getSegment(0, value * mLeftMeasure.getLength(), mLeftPath, true);
-                invalidate();
+                postInvalidate();
             }
         });
         leftAnimator.start();
 
         ValueAnimator rightAnimator = ValueAnimator.ofFloat(0f, 1f);
-        rightAnimator.setStartDelay((long) (mDuration *0.33));
+        rightAnimator.setStartDelay((long) (mDuration * 0.33));
         rightAnimator.setDuration(mDuration / 5);
         rightAnimator.setInterpolator(new LinearInterpolator());
         rightAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -320,20 +303,15 @@ public class CircleCheckBox extends MaterialCheckBox {
             public void onAnimationUpdate(ValueAnimator animation) {
                 float value = (float) animation.getAnimatedValue();
                 mRightPath.reset();
-                mRightPath.lineTo(0,0);
+                mRightPath.lineTo(0, 0);
                 mRightMeasure.getSegment(0, value * mRightMeasure.getLength(), mRightPath, true);
-                invalidate();
+                postInvalidate();
             }
         });
         rightAnimator.start();
     }
 
-    public int dp2px(float value) {
-        final float scale = getContext().getResources().getDisplayMetrics().densityDpi;
-        return (int) (value * (scale / 160) + 0.5f);
-    }
-
-    public interface OnCheckedChangeListener{
+    public interface OnCheckedChangeListener {
         void onCheckedChanged(boolean isChecked);
     }
 
