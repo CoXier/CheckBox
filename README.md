@@ -2,8 +2,9 @@
 <img src="/art/screenshot.gif" alt="screenshot" title="screenshot" width="396" height="650" />
 
 ## Attrs
+
 |attr|format|
-|---|:---|:---:|
+|:--:|:--:|
 |animation_duration|integer|
 |tick_width|dimension|
 |border_width|dimension|
@@ -21,12 +22,12 @@ compile 'com.uniquestudio:checkbox:1.0.1'
 
 ```java
 checkBox = (CircleCheckBox) findViewById(R.id.circle_check_box);
-        checkBox.setListener(new CircleCheckBox.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(boolean isChecked) {
-                // do something
-            }
-        });
+checkBox.setListener(new CircleCheckBox.OnCheckedChangeListener() {
+    @Override
+    public void onCheckedChanged(boolean isChecked) {
+        // do something
+    }
+});
 ```
 
 ## License
