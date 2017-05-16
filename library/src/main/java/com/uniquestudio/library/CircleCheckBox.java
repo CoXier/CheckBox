@@ -11,6 +11,7 @@ import android.graphics.PathMeasure;
 import android.graphics.Point;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
@@ -19,6 +20,7 @@ import android.view.animation.LinearInterpolator;
  * Created by CoXier on 2016/7/26.
  */
 public class CircleCheckBox extends MaterialCheckBox {
+    private static final String TAG = "CircleCheckBox";
     private Paint mTickPaint, mTickBackgroundPaint, mCircleBorderPaint, mInnerCircleBackgroundPaint;
     private Path mArcPath;
     private Path mLeftPath, mRightPath;
@@ -27,6 +29,7 @@ public class CircleCheckBox extends MaterialCheckBox {
     private int mTickColor, mBorderColor, mBackgroundColor;
     private int mWidth, mHeight, mRadius;
     private int mDuration;
+    private boolean mChecked;
     private Point mCenterPoint;
     private RectF mRectF;
     private Point mLeftPoint, mMiddlePoint, mRightPoint, mStopPoint;
@@ -55,6 +58,8 @@ public class CircleCheckBox extends MaterialCheckBox {
         TypedArray a = null;
         try {
             a = context.obtainStyledAttributes(attrs, R.styleable.CircleCheckBox);
+            mChecked = a.getBoolean(R.styleable.CircleCheckBox_checked, false);
+            Log.d(TAG, "CircleCheckBox is checked" + mChecked);
             mDuration = a.getInteger(R.styleable.CircleCheckBox_animation_duration, 2000);
             mTickColor =
                     a.getColor(R.styleable.CircleCheckBox_tick_color, Color.WHITE);
@@ -158,7 +163,7 @@ public class CircleCheckBox extends MaterialCheckBox {
 
         mLeftPath.moveTo(mLeftPoint.x, mLeftPoint.y);
         mLeftPath.lineTo(mMiddlePoint.x, mMiddlePoint.y);
-        mLeftMeasure.setPath(mLeftPath, false);;
+        mLeftMeasure.setPath(mLeftPath, false);
         mLeftPath.reset();
 
         mRightPath.moveTo(mStopPoint.x, mStopPoint.y);
@@ -167,6 +172,13 @@ public class CircleCheckBox extends MaterialCheckBox {
         mRightPath.reset();
 
         mArcPath.addCircle(mCenterPoint.x, mCenterPoint.y, mRadius, Path.Direction.CCW);
+
+        if (isChecked()) {
+            mLeftMeasure.getSegment(0, mLeftMeasure.getLength(), mLeftPath, true);
+            mRightMeasure.getSegment(0, mRightMeasure.getLength(), mRightPath, true);
+            mArcPath.reset();
+            mArcPath.addArc(mRectF, 0, 0);
+        }
     }
 
     @Override
@@ -188,13 +200,18 @@ public class CircleCheckBox extends MaterialCheckBox {
 
     @Override
     public void setChecked(boolean checked) {
-        super.setChecked(checked);
+        mChecked = checked;
         reset();
         if (checked) {
             startCheckedAnimation();
         } else {
             startUnCheckedAnimation();
         }
+    }
+
+    @Override
+    public boolean isChecked() {
+        return mChecked;
     }
 
     private void reset() {
@@ -204,7 +221,7 @@ public class CircleCheckBox extends MaterialCheckBox {
 
     private void startUnCheckedAnimation() {
         // tick animation
-        mLeftMeasure.getSegment(0,mLeftMeasure.getLength(),mLeftPath,true);
+        mLeftMeasure.getSegment(0, mLeftMeasure.getLength(), mLeftPath, true);
         ValueAnimator rightAnimator = ValueAnimator.ofFloat(0f, 1f);
         rightAnimator.setDuration((long) (mDuration * 0.16));
         rightAnimator.setInterpolator(new LinearInterpolator());
@@ -214,7 +231,7 @@ public class CircleCheckBox extends MaterialCheckBox {
                 float value = (float) animation.getAnimatedValue();
                 mRightPath.reset();
                 mRightPath.lineTo(0, 0);
-                mRightMeasure.getSegment(0, (1-value) * mRightMeasure.getLength(), mRightPath, true);
+                mRightMeasure.getSegment(0, (1 - value) * mRightMeasure.getLength(), mRightPath, true);
                 postInvalidate();
             }
         });
@@ -230,7 +247,7 @@ public class CircleCheckBox extends MaterialCheckBox {
                 float value = (float) animation.getAnimatedValue();
                 mLeftPath.reset();
                 mLeftPath.lineTo(0, 0);
-                mLeftMeasure.getSegment(0, (1-value) * mLeftMeasure.getLength(), mLeftPath, true);
+                mLeftMeasure.getSegment(0, (1 - value) * mLeftMeasure.getLength(), mLeftPath, true);
                 postInvalidate();
             }
         });

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="CircleCheckBox">
+        <attr name="checked" format="boolean"/>
         <attr name="animation_duration" format="integer"/>
         <attr name="tick_width" format="dimension"/>
         <attr name="border_width" format="dimension"/>

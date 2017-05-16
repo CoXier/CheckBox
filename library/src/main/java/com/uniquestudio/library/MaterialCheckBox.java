@@ -37,7 +37,7 @@ public abstract class MaterialCheckBox extends View implements Checkable {
 
     @Override
     public void toggle() {
-        setChecked(!mChecked);
+        setChecked(!isChecked());
     }
 
     @Override
