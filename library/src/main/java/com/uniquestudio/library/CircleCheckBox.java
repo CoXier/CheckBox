@@ -34,6 +34,10 @@ public class CircleCheckBox extends MaterialCheckBox {
     private RectF mRectF;
     private Point mLeftPoint, mMiddlePoint, mRightPoint, mStopPoint;
 
+    private ValueAnimator mRightAnimator;
+    private ValueAnimator mLeftAnimator;
+    private ValueAnimator mCircleAnimator;
+
     private OnCheckedChangeListener mListener;
 
     public void setListener(OnCheckedChangeListener listener) {
@@ -199,6 +203,14 @@ public class CircleCheckBox extends MaterialCheckBox {
     }
 
     @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mLeftAnimator.cancel();
+        mRightAnimator.cancel();
+        mCircleAnimator.cancel();
+    }
+
+    @Override
     public void setChecked(boolean checked) {
         mChecked = checked;
         reset();
@@ -222,10 +234,10 @@ public class CircleCheckBox extends MaterialCheckBox {
     private void startUnCheckedAnimation() {
         // tick animation
         mLeftMeasure.getSegment(0, mLeftMeasure.getLength(), mLeftPath, true);
-        ValueAnimator rightAnimator = ValueAnimator.ofFloat(0f, 1f);
-        rightAnimator.setDuration((long) (mDuration * 0.16));
-        rightAnimator.setInterpolator(new LinearInterpolator());
-        rightAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+        mRightAnimator = ValueAnimator.ofFloat(0f, 1f);
+        mRightAnimator.setDuration((long) (mDuration * 0.16));
+        mRightAnimator.setInterpolator(new LinearInterpolator());
+        mRightAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float value = (float) animation.getAnimatedValue();
@@ -235,13 +247,14 @@ public class CircleCheckBox extends MaterialCheckBox {
                 postInvalidate();
             }
         });
-        rightAnimator.start();
+        mRightAnimator.start();
 
-        ValueAnimator leftAnimator = ValueAnimator.ofFloat(0f, 1f);
-        leftAnimator.setStartDelay((long) (mDuration * 0.14));
-        leftAnimator.setDuration((long) (mDuration * 0.10));
-        leftAnimator.setInterpolator(new LinearInterpolator());
-        leftAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+        mLeftAnimator = ValueAnimator.ofFloat(0f, 1f);
+        mLeftAnimator.setStartDelay((long) (mDuration * 0.14));
+        mLeftAnimator.setDuration((long) (mDuration * 0.10));
+        mLeftAnimator.setInterpolator(new LinearInterpolator());
+        mLeftAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float value = (float) animation.getAnimatedValue();
@@ -251,14 +264,14 @@ public class CircleCheckBox extends MaterialCheckBox {
                 postInvalidate();
             }
         });
-        leftAnimator.start();
+        mLeftAnimator.start();
 
 
         // circle animation
         mCircleBorderPaint.setColor(mBorderColor);
-        ValueAnimator circleAnimator = ValueAnimator.ofFloat(0f, 1f);
-        circleAnimator.setInterpolator(new LinearInterpolator());
-        circleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+        mCircleAnimator = ValueAnimator.ofFloat(0f, 1f);
+        mCircleAnimator.setInterpolator(new LinearInterpolator());
+        mCircleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float value = (float) animation.getAnimatedValue();
@@ -267,18 +280,18 @@ public class CircleCheckBox extends MaterialCheckBox {
                 postInvalidate();
             }
         });
-        circleAnimator.setDuration(mDuration / 3);
-        circleAnimator.setStartDelay((long) (mDuration * 0.23));
-        circleAnimator.start();
+        mCircleAnimator.setDuration(mDuration / 3);
+        mCircleAnimator.setStartDelay((long) (mDuration * 0.23));
+        mCircleAnimator.start();
 
 
     }
 
     private void startCheckedAnimation() {
         // circle animation
-        ValueAnimator circleAnimator = ValueAnimator.ofFloat(0f, 1f);
-        circleAnimator.setInterpolator(new DecelerateInterpolator());
-        circleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+        mCircleAnimator = ValueAnimator.ofFloat(0f, 1f);
+        mCircleAnimator.setInterpolator(new DecelerateInterpolator());
+        mCircleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float value = (float) animation.getAnimatedValue();
@@ -287,19 +300,19 @@ public class CircleCheckBox extends MaterialCheckBox {
                 postInvalidate();
             }
         });
-        circleAnimator.setDuration(mDuration / 4);
-        circleAnimator.start();
+        mCircleAnimator.setDuration(mDuration / 4);
+        mCircleAnimator.start();
 
         // tick animation
         mTickPaint.setColor(mTickColor);
         mTickPaint.setStrokeWidth(mTickWidth);
         mTickBackgroundPaint.setColor(mBackgroundColor);
 
-        ValueAnimator leftAnimator = ValueAnimator.ofFloat(0f, 1f);
-        leftAnimator.setStartDelay((long) (mDuration * 0.21));
-        leftAnimator.setDuration(mDuration / 7);
-        leftAnimator.setInterpolator(new LinearInterpolator());
-        leftAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+        mLeftAnimator = ValueAnimator.ofFloat(0f, 1f);
+        mLeftAnimator.setStartDelay((long) (mDuration * 0.21));
+        mLeftAnimator.setDuration(mDuration / 7);
+        mLeftAnimator.setInterpolator(new LinearInterpolator());
+        mLeftAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float value = (float) animation.getAnimatedValue();
@@ -309,13 +322,13 @@ public class CircleCheckBox extends MaterialCheckBox {
                 postInvalidate();
             }
         });
-        leftAnimator.start();
+        mLeftAnimator.start();
 
-        ValueAnimator rightAnimator = ValueAnimator.ofFloat(0f, 1f);
-        rightAnimator.setStartDelay((long) (mDuration * 0.33));
-        rightAnimator.setDuration(mDuration / 5);
-        rightAnimator.setInterpolator(new LinearInterpolator());
-        rightAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+        mRightAnimator = ValueAnimator.ofFloat(0f, 1f);
+        mRightAnimator.setStartDelay((long) (mDuration * 0.33));
+        mRightAnimator.setDuration(mDuration / 5);
+        mRightAnimator.setInterpolator(new LinearInterpolator());
+        mRightAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float value = (float) animation.getAnimatedValue();
@@ -325,7 +338,7 @@ public class CircleCheckBox extends MaterialCheckBox {
                 postInvalidate();
             }
         });
-        rightAnimator.start();
+        mRightAnimator.start();
     }
 
     public interface OnCheckedChangeListener {
