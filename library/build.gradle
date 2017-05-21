@@ -24,14 +24,16 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:25.3.1'
 }
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
 publish {
     userOrg = 'coxier'
     groupId = 'com.uniquestudio'
     artifactId = 'checkbox'
-    publishVersion = '1.0.6'
+    publishVersion = '1.0.8'
     website = 'https://github.com/CoXier/CheckBox'
-    bintrayUser = 'coxier'
-    bintrayKey = properties.get("bintrayKey")
+    Properties properties = new Properties()
+    InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream() ;
+    properties.load( inputStream )
+    bintrayUser = properties.getProperty('bintrayUser')
+    bintrayKey = properties.getProperty('bintrayKey')
 }

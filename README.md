@@ -16,7 +16,7 @@
 ## Including in your project
 - `CircleCheckBox` is available in the MavenCentral, so getting it as simple as adding it as a dependency
 ```gradle
-compile 'com.uniquestudio:checkbox:1.0.6'
+compile 'com.uniquestudio:checkbox:1.0.8'
 ```
 
 ## Usage
