@@ -7,7 +7,7 @@ import android.widget.Checkable;
 
 /**
  * Author: CoXier
- * Email:  TmWorkCC@yahoo.com
+ * Email:  justcoxier@gmail.com
  */
 public abstract class MaterialCheckBox extends View implements Checkable {
     private boolean mChecked;
@@ -47,16 +47,14 @@ public abstract class MaterialCheckBox extends View implements Checkable {
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
-        int width = widthSize, height = heightSize;
-
         if (widthMode == MeasureSpec.AT_MOST) {
-            width = dp2px(DEFAULT_SIZE);
+            widthSize = dp2px(DEFAULT_SIZE);
         }
 
         if (heightMode == MeasureSpec.AT_MOST) {
-            height = dp2px(DEFAULT_SIZE);
+            heightSize = dp2px(DEFAULT_SIZE);
         }
-        setMeasuredDimension(width, height);
+        setMeasuredDimension(widthSize, heightSize);
     }
 
     public int dp2px(float value) {

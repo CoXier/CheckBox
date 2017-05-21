@@ -11,7 +11,6 @@ import android.graphics.PathMeasure;
 import android.graphics.Point;
 import android.graphics.RectF;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
@@ -40,6 +39,8 @@ public class CircleCheckBox extends MaterialCheckBox {
 
     private OnCheckedChangeListener mListener;
 
+    private final static int UNSET_FLAG = 1;
+
     public void setListener(OnCheckedChangeListener listener) {
         this.mListener = listener;
     }
@@ -59,17 +60,15 @@ public class CircleCheckBox extends MaterialCheckBox {
     }
 
     private void getAttrs(Context context, AttributeSet attrs) {
-        TypedArray a = null;
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.CircleCheckBox, 0, 0);
         try {
-            a = context.obtainStyledAttributes(attrs, R.styleable.CircleCheckBox);
             mChecked = a.getBoolean(R.styleable.CircleCheckBox_checked, false);
-            Log.d(TAG, "CircleCheckBox is checked" + mChecked);
             mDuration = a.getInteger(R.styleable.CircleCheckBox_animation_duration, 2000);
             mTickColor =
                     a.getColor(R.styleable.CircleCheckBox_tick_color, Color.WHITE);
-            mTickWidth = a.getDimensionPixelSize(R.styleable.CircleCheckBox_tick_width, dp2px(10));
+            mTickWidth = a.getDimensionPixelSize(R.styleable.CircleCheckBox_tick_width, UNSET_FLAG);
             mBorderWidth =
-                    a.getDimensionPixelOffset(R.styleable.CircleCheckBox_border_width, dp2px(8));
+                    a.getDimensionPixelOffset(R.styleable.CircleCheckBox_border_width, UNSET_FLAG);
             mBorderColor =
                     a.getColor(R.styleable.CircleCheckBox_border_color, Color.parseColor("#4AC65A"));
             mBackgroundColor = a.getColor(R.styleable.CircleCheckBox_background_color, Color.parseColor("#32bc43"));
@@ -89,19 +88,16 @@ public class CircleCheckBox extends MaterialCheckBox {
         mTickPaint.setColor(mTickColor);
         mTickPaint.setStyle(Paint.Style.STROKE);
         mTickPaint.setStrokeCap(Paint.Cap.ROUND);
-        mTickPaint.setStrokeWidth(mTickWidth);
 
         mTickBackgroundPaint.setColor(mBackgroundColor);
         mTickBackgroundPaint.setStyle(Paint.Style.STROKE);
         mTickBackgroundPaint.setStrokeCap(Paint.Cap.ROUND);
-        mTickBackgroundPaint.setStrokeWidth(mTickWidth);
+
 
         // paint of the border
         mCircleBorderPaint.setColor(mTickColor);
         mCircleBorderPaint.setStyle(Paint.Style.STROKE);
         mCircleBorderPaint.setStrokeCap(Paint.Cap.ROUND);
-        mCircleBorderPaint.setStrokeWidth(mBorderWidth);
-
 
         // paint of the background
         mInnerCircleBackgroundPaint.setColor(mBackgroundColor);
@@ -153,6 +149,18 @@ public class CircleCheckBox extends MaterialCheckBox {
 
         mRectF.set(paddingLeft + mBorderWidth, paddingTop + mBorderWidth, mWidth - mBorderWidth, mHeight - mBorderWidth);
 
+        if (mTickWidth == UNSET_FLAG) {
+            mTickWidth = mWidth / 10;
+        }
+
+        if (mBorderWidth == UNSET_FLAG) {
+            mBorderWidth = mWidth / 12;
+        }
+
+        mCircleBorderPaint.setStrokeWidth(mBorderWidth);
+        mTickPaint.setStrokeWidth(mTickWidth);
+        mTickBackgroundPaint.setStrokeWidth(mTickWidth);
+
         mLeftPoint.x = (int) (paddingLeft + (diameter * 0.2428));
         mLeftPoint.y = (int) (paddingTop + diameter * 0.4712);
 
@@ -175,8 +183,6 @@ public class CircleCheckBox extends MaterialCheckBox {
         mRightMeasure.setPath(mRightPath, false);
         mRightPath.reset();
 
-        mArcPath.addCircle(mCenterPoint.x, mCenterPoint.y, mRadius, Path.Direction.CCW);
-
         if (isChecked()) {
             mLeftMeasure.getSegment(0, mLeftMeasure.getLength(), mLeftPath, true);
             mRightMeasure.getSegment(0, mRightMeasure.getLength(), mRightPath, true);
@@ -188,9 +194,9 @@ public class CircleCheckBox extends MaterialCheckBox {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        // draw background
+        // draw inner circle
         canvas.drawCircle(mCenterPoint.x, mCenterPoint.y, mRadius, mInnerCircleBackgroundPaint);
-        // draw border
+        // draw ring
         mCircleBorderPaint.setColor(mBorderColor);
         canvas.drawCircle(mCenterPoint.x, mCenterPoint.y, mRadius, mCircleBorderPaint);
         mCircleBorderPaint.setColor(mTickColor);
@@ -205,9 +211,9 @@ public class CircleCheckBox extends MaterialCheckBox {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        mLeftAnimator.cancel();
-        mRightAnimator.cancel();
-        mCircleAnimator.cancel();
+        if (mLeftAnimator != null) mLeftAnimator.cancel();
+        if (mRightAnimator != null) mRightAnimator.cancel();
+        if (mCircleAnimator != null) mCircleAnimator.cancel();
     }
 
     @Override
@@ -249,7 +255,6 @@ public class CircleCheckBox extends MaterialCheckBox {
         });
         mRightAnimator.start();
 
-
         mLeftAnimator = ValueAnimator.ofFloat(0f, 1f);
         mLeftAnimator.setStartDelay((long) (mDuration * 0.14));
         mLeftAnimator.setDuration((long) (mDuration * 0.10));
@@ -265,7 +270,6 @@ public class CircleCheckBox extends MaterialCheckBox {
             }
         });
         mLeftAnimator.start();
-
 
         // circle animation
         mCircleBorderPaint.setColor(mBorderColor);
@@ -283,8 +287,6 @@ public class CircleCheckBox extends MaterialCheckBox {
         mCircleAnimator.setDuration(mDuration / 3);
         mCircleAnimator.setStartDelay((long) (mDuration * 0.23));
         mCircleAnimator.start();
-
-
     }
 
     private void startCheckedAnimation() {
