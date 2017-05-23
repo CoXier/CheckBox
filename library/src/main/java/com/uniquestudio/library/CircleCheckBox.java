@@ -188,6 +188,9 @@ public class CircleCheckBox extends MaterialCheckBox {
             mRightMeasure.getSegment(0, mRightMeasure.getLength(), mRightPath, true);
             mArcPath.reset();
             mArcPath.addArc(mRectF, 0, 0);
+        }else{
+            mArcPath.reset();
+            mArcPath.addCircle(mCenterPoint.x,mCenterPoint.y,mRadius, Path.Direction.CCW);
         }
     }
 
