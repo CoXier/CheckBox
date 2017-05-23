@@ -240,7 +240,7 @@ public class CircleCheckBox extends MaterialCheckBox {
     private void startUnCheckedAnimation() {
         // tick animation
         mLeftMeasure.getSegment(0, mLeftMeasure.getLength(), mLeftPath, true);
-        mRightAnimator = ValueAnimator.ofFloat(0f, 1f);
+        mRightAnimator = ValueAnimator.ofFloat(1f, 0f);
         mRightAnimator.setDuration((long) (mDuration * 0.16));
         mRightAnimator.setInterpolator(new LinearInterpolator());
         mRightAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -249,13 +249,13 @@ public class CircleCheckBox extends MaterialCheckBox {
                 float value = (float) animation.getAnimatedValue();
                 mRightPath.reset();
                 mRightPath.lineTo(0, 0);
-                mRightMeasure.getSegment(0, (1 - value) * mRightMeasure.getLength(), mRightPath, true);
+                mRightMeasure.getSegment(0, value * mRightMeasure.getLength(), mRightPath, true);
                 postInvalidate();
             }
         });
         mRightAnimator.start();
 
-        mLeftAnimator = ValueAnimator.ofFloat(0f, 1f);
+        mLeftAnimator = ValueAnimator.ofFloat(1f, 0f);
         mLeftAnimator.setStartDelay((long) (mDuration * 0.14));
         mLeftAnimator.setDuration((long) (mDuration * 0.10));
         mLeftAnimator.setInterpolator(new LinearInterpolator());
@@ -265,7 +265,7 @@ public class CircleCheckBox extends MaterialCheckBox {
                 float value = (float) animation.getAnimatedValue();
                 mLeftPath.reset();
                 mLeftPath.lineTo(0, 0);
-                mLeftMeasure.getSegment(0, (1 - value) * mLeftMeasure.getLength(), mLeftPath, true);
+                mLeftMeasure.getSegment(0, value * mLeftMeasure.getLength(), mLeftPath, true);
                 postInvalidate();
             }
         });
@@ -291,14 +291,14 @@ public class CircleCheckBox extends MaterialCheckBox {
 
     private void startCheckedAnimation() {
         // circle animation
-        mCircleAnimator = ValueAnimator.ofFloat(0f, 1f);
+        mCircleAnimator = ValueAnimator.ofFloat(1f, 0f);
         mCircleAnimator.setInterpolator(new DecelerateInterpolator());
         mCircleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float value = (float) animation.getAnimatedValue();
                 mArcPath.reset();
-                mArcPath.addArc(mRectF, -159, 360 * (1 - value));
+                mArcPath.addArc(mRectF, -159, 360 * value);
                 postInvalidate();
             }
         });
