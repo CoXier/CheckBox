@@ -50,11 +50,8 @@ public class CircleCheckBox extends MaterialCheckBox {
     }
 
     public CircleCheckBox(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-    public CircleCheckBox(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+        super(context,attrs);
+        android.text.TextUtils.isEmpty()
         getAttrs(context, attrs);
         init();
     }
