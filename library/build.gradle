@@ -29,11 +29,6 @@ publish {
     userOrg = 'coxier'
     groupId = 'com.uniquestudio'
     artifactId = 'checkbox'
-    publishVersion = '1.0.8'
+    publishVersion = '1.0.10'
     website = 'https://github.com/CoXier/CheckBox'
-    Properties properties = new Properties()
-    InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream() ;
-    properties.load( inputStream )
-    bintrayUser = properties.getProperty('bintrayUser')
-    bintrayKey = properties.getProperty('bintrayKey')
 }
