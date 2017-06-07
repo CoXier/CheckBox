@@ -51,7 +51,6 @@ public class CircleCheckBox extends MaterialCheckBox {
 
     public CircleCheckBox(Context context, AttributeSet attrs) {
         super(context,attrs);
-        android.text.TextUtils.isEmpty()
         getAttrs(context, attrs);
         init();
     }
